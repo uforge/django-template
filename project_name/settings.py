@@ -74,10 +74,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-COMPASS_DIRS = (
-    #os.path.join(PROJECT_ROOT, 'apps/main/static/main'),
-)
-
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -91,6 +87,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#   Uncomment this to minify the HTML
+#    'pipeline.middleware.MinifyHTMLMiddleware',
 )
 
 ROOT_URLCONF = '{{ project_name }}.urls'
@@ -126,14 +124,88 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Used to maintain the database and do migrations
     'south',
-    'debug_toolbar',
+    # Used to autocompile scss/eco/coffee files
+    'pipeline',
+    # Our main application
     'apps.main',
     'droid.commonjs',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+)
+
+PIPELINE_CSS = {
+    'style': {
+        'source_filenames': (
+          'main/scss/style.scss',
+        ),
+        'output_filename': 'main/css/style.css',
+    },
+    'screen': {
+        'source_filenames': (
+          'main/scss/screen.scss',
+        ),
+        'output_filename': 'main/css/screen.css',
+        'extra_context': {
+            'media': 'screen,projection',
+        },
+    },
+    'print': {
+        'source_filenames': (
+          'main/scss/print.scss',
+        ),
+        'output_filename': 'main/css/print.css',
+        'extra_context': {
+            'media': 'print',
+        },
+    },
+    'ie': {
+        'source_filenames': (
+          'main/scss/ie.scss',
+        ),
+        'output_filename': 'main/css/ie.css',
+        'extra_context': {
+            'media': 'screen,projection',
+        },
+    },
+}
+
+# We first include the assets in a single file called assets.js and then we add our 
+# sources to a file called application.js
+PIPELINE_JS = {
+    'assets': {
+        'source_filenames': (
+            'main/js/assets/libs/*.coffee',
+            'main/js/assets/libs/jquery.js',
+            'main/js/assets/libs/underscore.js',
+            'main/js/assets/libs/backbone.js',
+            'main/js/assets/libs/*.js',
+            'main/js/assets/plugins/*.coffee',
+            'main/js/assets/plugins/*.js',
+
+            'main/bootstrap/js/*.min.js',
+        ),
+        'output_filename': 'main/js/assets.js'
+    },
+# This is the real application, uncomment this lines if you use the default structure
+    'application': {
+        'source_filenames': (
+#            'main/js/app/namespace.coffee',
+#            'main/js/app/modules/*.coffee',
+#            'main/js/app/templates/*.eco',
+#            'main/js/app/index.coffee',
+        ),
+        'output_filename': 'main/js/application.js'
+    },
+}
+
+PIPELINE_COMPILERS = (
+    'pipeline_compass.compiler.CompassCompiler',
+    'pipeline_eco.compiler.EcoCompiler',
+    'pipeline.compilers.coffee.CoffeeScriptCompiler',
 )
 
 # A sample logging configuration. The only tangible logging
