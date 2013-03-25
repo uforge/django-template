@@ -140,6 +140,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
+ALLOWED_HOSTS = '*'
+
 PIPELINE_CSS = {
     'style': {
         'source_filenames': [
